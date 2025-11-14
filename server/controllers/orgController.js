@@ -3,12 +3,6 @@
 const pool = require("../db/db");
 const bcrypt = require("bcryptjs");
 
-// ----------------------------------
-// POST /api/org/register
-// ----------------------------------
-const { pool } = require("../db/db");
-const bcrypt = require("bcryptjs");
-
 // POST /api/org/register
 exports.registerOrg = async (req, res) => {
   const {
@@ -63,12 +57,6 @@ exports.registerOrg = async (req, res) => {
     res.status(500).json({ error: "Server error during registration." });
   }
 };
-
-// ----------------------------------
-// POST /api/org/login
-// ----------------------------------
-const { pool } = require("../db/db");
-const bcrypt = require("bcryptjs");
 
 // POST /api/org/login
 exports.loginOrg = async (req, res) => {
