@@ -1,14 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const orgController = require("../controllers/orgController");
+const { registerOrg, loginOrg } = require("../controllers/orgController");
 
 // Register
-router.post("/register", orgController.registerOrg);
+router.post("/register", registerOrg);
 
 // Login
-router.post("/login", orgController.loginOrg);
-
-// Get logged-in org
-router.get("/me", orgController.getOrgProfile);
+router.post("/login", loginOrg);
 
 module.exports = router;

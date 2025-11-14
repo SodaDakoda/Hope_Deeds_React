@@ -6,31 +6,60 @@ const bcrypt = require("bcryptjs");
 // ----------------------------------
 // POST /api/org/register
 // ----------------------------------
+const { pool } = require("../db/db");
+const bcrypt = require("bcryptjs");
+
+// POST /api/org/register
 exports.registerOrg = async (req, res) => {
-  const { org_name, email, password } = req.body;
+  const {
+    org_name,
+    email,
+    phone,
+    address,
+    city,
+    state,
+    zipcode,
+    contact_person,
+    password,
+  } = req.body;
 
   if (!org_name || !email || !password) {
-    return res.status(400).json({ error: "All fields are required." });
+    return res
+      .status(400)
+      .json({ error: "Organization name, email, and password are required." });
   }
 
   try {
-    const password_hash = await bcrypt.hash(password, 10);
+    // Hash password
+    const hashed = await bcrypt.hash(password, 10);
 
-    const result = await pool.query(
-      `INSERT INTO organizations (org_name, email, password_hash)
-       VALUES ($1, $2, $3)
-       RETURNING id, org_name, email`,
-      [org_name, email, password_hash]
-    );
+    const query = `
+      INSERT INTO organizations 
+      (org_name, email, phone, address, city, state, zipcode, contact_person, password_hash)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+      RETURNING id, org_name, email
+    `;
 
-    res.json({ success: true, org: result.rows[0] });
+    const values = [
+      org_name,
+      email,
+      phone || "",
+      address || "",
+      city || "",
+      state || "",
+      zipcode || "",
+      contact_person || "",
+      hashed,
+    ];
+
+    const result = await pool.query(query, values);
+
+    res.json({
+      success: true,
+      org: result.rows[0],
+    });
   } catch (err) {
     console.error("ORG REGISTER ERROR:", err);
-
-    if (err.code === "23505") {
-      return res.status(400).json({ error: "Email already registered." });
-    }
-
     res.status(500).json({ error: "Server error during registration." });
   }
 };
@@ -38,6 +67,10 @@ exports.registerOrg = async (req, res) => {
 // ----------------------------------
 // POST /api/org/login
 // ----------------------------------
+const { pool } = require("../db/db");
+const bcrypt = require("bcryptjs");
+
+// POST /api/org/login
 exports.loginOrg = async (req, res) => {
   const { email, password } = req.body;
 
@@ -58,7 +91,7 @@ exports.loginOrg = async (req, res) => {
     const match = await bcrypt.compare(password, org.password_hash);
     if (!match) return res.status(401).json({ error: "Invalid credentials." });
 
-    res.json({
+    return res.json({
       success: true,
       org: {
         id: org.id,

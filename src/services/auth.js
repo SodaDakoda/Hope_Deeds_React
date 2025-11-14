@@ -1,33 +1,25 @@
 // src/services/auth.js
-const API_BASE = import.meta.env.VITE_API_URL || "/api";
-
-export async function orgRegister(data) {
-  const res = await fetch(`${API_BASE}/org/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  return res.json();
-}
-
-export async function orgLogin(data) {
-  const res = await fetch(`${API_BASE}/org/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  return res.json();
-}
-
-export async function getOrgProfile() {
+export async function orgLogin({ email, password }) {
   try {
-    const res = await fetch("/api/org/profile", {
-      credentials: "include",
+    const res = await fetch("/api/org/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
     });
-    return await res.json();
+
+    // If backend crashed or URL is wrong → res.ok = false
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      return {
+        success: false,
+        error: errorData.error || "Server error (login failed)",
+      };
+    }
+
+    const data = await res.json();
+    return { success: true, org: data.org };
   } catch (err) {
-    console.error("Error fetching org:", err);
+    console.error("Login request error:", err);
+    return { success: false, error: "Network error or server offline" };
   }
 }
