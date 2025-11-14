@@ -1,7 +1,43 @@
-const { pool } = require("../../server.js");
-const bcrypt = require("bcrypt");
+// server/controllers/orgController.js
 
+const pool = require("../db/db");
+const bcrypt = require("bcryptjs");
+
+// ----------------------------------
+// POST /api/org/register
+// ----------------------------------
+exports.registerOrg = async (req, res) => {
+  const { org_name, email, password } = req.body;
+
+  if (!org_name || !email || !password) {
+    return res.status(400).json({ error: "All fields are required." });
+  }
+
+  try {
+    const password_hash = await bcrypt.hash(password, 10);
+
+    const result = await pool.query(
+      `INSERT INTO organizations (org_name, email, password_hash)
+       VALUES ($1, $2, $3)
+       RETURNING id, org_name, email`,
+      [org_name, email, password_hash]
+    );
+
+    res.json({ success: true, org: result.rows[0] });
+  } catch (err) {
+    console.error("ORG REGISTER ERROR:", err);
+
+    if (err.code === "23505") {
+      return res.status(400).json({ error: "Email already registered." });
+    }
+
+    res.status(500).json({ error: "Server error during registration." });
+  }
+};
+
+// ----------------------------------
 // POST /api/org/login
+// ----------------------------------
 exports.loginOrg = async (req, res) => {
   const { email, password } = req.body;
 
@@ -22,7 +58,7 @@ exports.loginOrg = async (req, res) => {
     const match = await bcrypt.compare(password, org.password_hash);
     if (!match) return res.status(401).json({ error: "Invalid credentials." });
 
-    return res.json({
+    res.json({
       success: true,
       org: {
         id: org.id,
@@ -36,24 +72,24 @@ exports.loginOrg = async (req, res) => {
   }
 };
 
-const { pool } = require("../db/db");
-
+// ----------------------------------
+// GET /api/org/me
+// ----------------------------------
 exports.getOrgProfile = async (req, res) => {
   try {
     const orgId = req.session?.orgId;
 
-    if (!orgId) {
-      return res.status(401).json({ error: "Not logged in" });
-    }
+    if (!orgId) return res.status(401).json({ error: "Not logged in" });
 
-    const query = `SELECT id, org_name, email, phone, address, city, state, zipcode
-                   FROM organizations WHERE id = $1`;
-
-    const result = await pool.query(query, [orgId]);
+    const result = await pool.query(
+      `SELECT id, org_name, email, phone, address, city, state, zipcode
+       FROM organizations WHERE id = $1`,
+      [orgId]
+    );
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error("Error loading org profile:", err);
+    console.error("ORG PROFILE ERROR:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
