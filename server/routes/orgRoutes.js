@@ -1,16 +1,15 @@
+// server/routes/orgRoutes.js
 const express = require("express");
 const router = express.Router();
-const { loginOrg } = require("../controllers/orgController");
+const orgController = require("../controllers/orgController");
 
-// LOGIN
-router.post("/login", loginOrg);
+// Register
+router.post("/register", orgController.register);
 
-module.exports = router;
+// Login
+router.post("/login", orgController.login);
 
-const express = require("express");
-const router = express.Router();
-const { getOrgProfile } = require("../controllers/orgController");
-
-router.get("/profile", getOrgProfile);
+// Get logged-in org info
+router.get("/me", orgController.getProfile);
 
 module.exports = router;
