@@ -12,17 +12,20 @@ const PORT = process.env.PORT || 8080;
 // -----------------------------
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }, // required for Neon
+  ssl: { rejectUnauthorized: false },
 });
 
-// Test DB connection on startup
-pool.query("SELECT NOW()", (err, result) => {
-  if (err) {
-    console.error("❌ Database connection failed:", err);
-  } else {
+pool
+  .query("SELECT NOW()")
+  .then((result) => {
     console.log("🟢 Connected to PostgreSQL:", result.rows[0].now);
-  }
-});
+  })
+  .catch((err) => {
+    console.error("❌ Database connection failed:", err);
+  });
+
+// Make pool accessible to controllers
+module.exports.pool = pool;
 
 // -----------------------------
 //  MIDDLEWARE
@@ -33,8 +36,10 @@ app.use(express.urlencoded({ extended: true }));
 // -----------------------------
 //  API ROUTES
 // -----------------------------
+const orgRoutes = require("./server/routes/orgRoutes");
+app.use("/api/org", orgRoutes);
 
-// Test backend + db
+// Test DB route
 app.get("/api/test-db", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
@@ -45,14 +50,14 @@ app.get("/api/test-db", async (req, res) => {
   }
 });
 
-// Example placeholder route
+// Basic test route
 app.get("/api/test", (req, res) => {
   res.json({ message: "Backend running ✔ and DB connected ✔" });
 });
 
-// ----------------------------------
+// -----------------------------
 //  SERVE REACT FRONTEND
-// ----------------------------------
+// -----------------------------
 const buildPath = path.join(__dirname, "dist");
 app.use(express.static(buildPath));
 
@@ -67,5 +72,3 @@ app.get("*", (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
-
-module.exports = { pool };

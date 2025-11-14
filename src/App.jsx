@@ -6,9 +6,19 @@ import { UIProvider } from "./context/UIContext";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import AppLayout from "./layout/AppLayout";
+import DashboardLayout from "./components/layout/DashboardLayout";
+
 import Home from "./pages/home/Home";
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
+
+// Org Auth
+import OrgLogin from "./pages/auth/OrgLogin";
+import OrgRegister from "./pages/auth/OrgRegister";
+
+// Org Dashboard
+import OrgDashboard from "./pages/organization/OrgDashboard";
+
+// Protected Route
+import ProtectedOrgRoute from "./router/ProtectedOrgRoute";
 
 function App() {
   return (
@@ -18,6 +28,7 @@ function App() {
           <AdminProvider>
             <BrowserRouter>
               <Routes>
+                {/* PUBLIC PAGES */}
                 <Route
                   path="/"
                   element={
@@ -26,22 +37,32 @@ function App() {
                     </AppLayout>
                   }
                 />
-
                 <Route
                   path="/login"
                   element={
                     <AppLayout>
-                      <Login />
+                      <OrgLogin />
                     </AppLayout>
                   }
                 />
-
                 <Route
                   path="/register"
                   element={
                     <AppLayout>
-                      <Register />
+                      <OrgRegister />
                     </AppLayout>
+                  }
+                />
+
+                {/* ORG DASHBOARD */}
+                <Route
+                  path="/org/dashboard"
+                  element={
+                    <ProtectedOrgRoute>
+                      <DashboardLayout>
+                        <OrgDashboard />
+                      </DashboardLayout>
+                    </ProtectedOrgRoute>
                   }
                 />
               </Routes>
