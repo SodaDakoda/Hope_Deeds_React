@@ -1,4 +1,35 @@
 // src/services/auth.js
+
+// ------------------------
+// Register Organization
+// ------------------------
+export async function orgRegister(form) {
+  try {
+    const res = await fetch("/api/org/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      return {
+        success: false,
+        error: data.error || "Registration failed",
+      };
+    }
+
+    return { success: true, org: data.org };
+  } catch (err) {
+    console.error("Registration request failed:", err);
+    return { success: false, error: "Network error" };
+  }
+}
+
+// ------------------------
+// Login Organization
+// ------------------------
 export async function orgLogin({ email, password }) {
   try {
     const res = await fetch("/api/org/login", {
@@ -7,19 +38,41 @@ export async function orgLogin({ email, password }) {
       body: JSON.stringify({ email, password }),
     });
 
-    // If backend crashed or URL is wrong → res.ok = false
+    const data = await res.json().catch(() => ({}));
+
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
       return {
         success: false,
-        error: errorData.error || "Server error (login failed)",
+        error: data.error || "Invalid credentials",
       };
     }
 
-    const data = await res.json();
     return { success: true, org: data.org };
   } catch (err) {
-    console.error("Login request error:", err);
-    return { success: false, error: "Network error or server offline" };
+    console.error("Login error:", err);
+    return { success: false, error: "Network error" };
+  }
+}
+
+// ------------------------
+// Get Org Profile (Dashboard)
+// ------------------------
+export async function getOrgProfile() {
+  try {
+    const res = await fetch("/api/org/profile");
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      return {
+        success: false,
+        error: data.error || "Unable to load profile",
+      };
+    }
+
+    return { success: true, org: data };
+  } catch (err) {
+    console.error("Profile request failed:", err);
+    return { success: false, error: "Network error" };
   }
 }
