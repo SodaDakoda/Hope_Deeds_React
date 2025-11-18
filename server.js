@@ -5,46 +5,53 @@ dotenv.config();
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import { Pool } from "pg";
+import { pool } from "./server/db/db.js";
 import orgRoutes from "./server/routes/orgRoutes.js";
-app.use("/api/org", orgRoutes);
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Fix __dirname for ES modules
+// Resolve dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // -----------------------------
-//  DATABASE CONNECTION (NEON)
+//  TEST DB CONNECTION
 // -----------------------------
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-});
-
-// Test connection
 pool
   .query("SELECT NOW()")
-  .then((res) => console.log("🟢 PostgreSQL Connected:", res.rows[0].now))
-  .catch((err) => console.error("❌ Database Connection Error:", err));
+  .then((res) => console.log("🟢 Connected to PostgreSQL:", res.rows[0].now))
+  .catch((err) => console.error("❌ Database connection failed:", err));
 
+// -----------------------------
+//  MIDDLEWARE
+// -----------------------------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// -----------------------------
+//  ROUTES
+// -----------------------------
 app.use("/api/org", orgRoutes);
 
-// Test route
 app.get("/api/test", (req, res) => {
-  res.json({ message: "Backend OK + Database OK" });
+  res.json({ message: "Backend running ✔" });
 });
 
+// -----------------------------
+//  SERVE FRONTEND (React Build)
+// -----------------------------
 const buildPath = path.join(__dirname, "dist");
 app.use(express.static(buildPath));
 
+// React Router fallback
 app.get("*", (req, res) => {
   res.sendFile(path.join(buildPath, "index.html"));
 });
 
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// -----------------------------
+//  START SERVER
+// -----------------------------
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
