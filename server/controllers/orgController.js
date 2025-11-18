@@ -2,43 +2,35 @@
 import bcrypt from "bcryptjs";
 import { pool } from "../db/db.js";
 
-// -----------------------------
-// REGISTER ORGANIZATION
-// -----------------------------
 export const registerOrg = async (req, res) => {
-  const { org_name, email, password } = req.body;
-
-  if (!org_name || !email || !password) {
-    return res
-      .status(400)
-      .json({ error: "Organization name, email, and password are required." });
-  }
-
   try {
-    const exists = await pool.query(
+    const { org_name, email, password } = req.body;
+
+    if (!org_name || !email || !password) {
+      return res.status(400).json({ error: "Missing required fields." });
+    }
+
+    // Check duplicate
+    const existing = await pool.query(
       "SELECT id FROM organizations WHERE email = $1",
       [email]
     );
-
-    if (exists.rows.length > 0) {
+    if (existing.rows.length > 0) {
       return res.status(400).json({ error: "Email already registered." });
     }
 
-    const hash = await bcrypt.hash(password, 10);
+    const hashed = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
       `INSERT INTO organizations (org_name, email, password)
        VALUES ($1, $2, $3)
        RETURNING id, org_name, email`,
-      [org_name, email, hash]
+      [org_name, email, hashed]
     );
 
-    return res.json({
-      success: true,
-      org: result.rows[0],
-    });
+    return res.json({ success: true, org: result.rows[0] });
   } catch (err) {
-    console.error("ORG REGISTRATION ERROR:", err);
+    console.error("❌ REGISTER ERROR:", err);
     return res.status(500).json({ error: "Server error during registration." });
   }
 };
