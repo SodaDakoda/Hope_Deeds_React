@@ -1,78 +1,52 @@
-// src/services/auth.js
+const API_BASE = import.meta.env.VITE_API_URL || "";
 
-// ------------------------
-// Register Organization
-// ------------------------
-export async function orgRegister(form) {
+// -----------------------------
+// REGISTER ORG
+// -----------------------------
+export async function orgRegister(data) {
   try {
-    const res = await fetch("/api/org/register", {
+    const res = await fetch(`/api/org/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(data),
     });
 
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      return {
-        success: false,
-        error: data.error || "Registration failed",
-      };
-    }
-
-    return { success: true, org: data.org };
+    const json = await res.json();
+    return json;
   } catch (err) {
-    console.error("Registration request failed:", err);
+    console.error("Register error:", err);
     return { success: false, error: "Network error" };
   }
 }
 
-// ------------------------
-// Login Organization
-// ------------------------
-export async function orgLogin({ email, password }) {
+// -----------------------------
+// LOGIN ORG
+// -----------------------------
+export async function orgLogin(data) {
   try {
-    const res = await fetch("/api/org/login", {
+    const res = await fetch(`/api/org/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(data),
     });
 
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      return {
-        success: false,
-        error: data.error || "Invalid credentials",
-      };
-    }
-
-    return { success: true, org: data.org };
+    const json = await res.json();
+    return json;
   } catch (err) {
     console.error("Login error:", err);
     return { success: false, error: "Network error" };
   }
 }
 
-// ------------------------
-// Get Org Profile (Dashboard)
-// ------------------------
-export async function getOrgProfile() {
+// -----------------------------
+// GET ORG PROFILE
+// -----------------------------
+export async function getOrgProfile(id) {
   try {
-    const res = await fetch("/api/org/profile");
-
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      return {
-        success: false,
-        error: data.error || "Unable to load profile",
-      };
-    }
-
-    return { success: true, org: data };
+    const res = await fetch(`/api/org/profile?id=${id}`);
+    return await res.json();
   } catch (err) {
-    console.error("Profile request failed:", err);
-    return { success: false, error: "Network error" };
+    console.error("Profile fetch error:", err);
+    return null;
   }
 }
