@@ -7,6 +7,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { Pool } from "pg";
 import orgRoutes from "./server/routes/orgRoutes.js";
+app.use("/api/org", orgRoutes);
 
 const app = express();
 const PORT = process.env.PORT || 8080;

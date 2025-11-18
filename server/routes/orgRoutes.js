@@ -1,4 +1,3 @@
-// server/routes/orgRoutes.js
 import express from "express";
 import {
   registerOrg,
