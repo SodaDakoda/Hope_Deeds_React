@@ -1,52 +1,43 @@
-const API_BASE = import.meta.env.VITE_API_URL || "";
+import { apiRequest } from "../utils/api";
 
 // -----------------------------
-// REGISTER ORG
+// ORGANIZATION REGISTER
 // -----------------------------
 export async function orgRegister(data) {
-  try {
-    const res = await fetch(`/api/org/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-
-    const json = await res.json();
-    return json;
-  } catch (err) {
-    console.error("Register error:", err);
-    return { success: false, error: "Network error" };
-  }
+  return apiRequest("/auth/register-org", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 }
 
 // -----------------------------
-// LOGIN ORG
+// ORGANIZATION LOGIN
 // -----------------------------
 export async function orgLogin(data) {
-  try {
-    const res = await fetch(`/api/org/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-
-    const json = await res.json();
-    return json;
-  } catch (err) {
-    console.error("Login error:", err);
-    return { success: false, error: "Network error" };
-  }
+  return apiRequest("/auth/login-org", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 }
 
 // -----------------------------
-// GET ORG PROFILE
+// USER LOGIN (Admin, Manager, Volunteer)
 // -----------------------------
-export async function getOrgProfile(id) {
-  try {
-    const res = await fetch(`/api/org/profile?id=${id}`);
-    return await res.json();
-  } catch (err) {
-    console.error("Profile fetch error:", err);
-    return null;
-  }
+export async function userLogin(data) {
+  return apiRequest("/auth/login", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+// -----------------------------
+// GET LOGGED-IN USER PROFILE
+// -----------------------------
+export async function getProfile(token) {
+  return apiRequest("/auth/me", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }
