@@ -1,14 +1,22 @@
 import { createContext, useContext, useState } from "react";
-import api from "../utils/api";
+import { apiRequest } from "../utils/api";
 
 const AdminContext = createContext();
 
 export const AdminProvider = ({ children }) => {
   const [volunteers, setVolunteers] = useState([]);
 
+  // -----------------------------
+  // Load Pending Volunteers
+  // -----------------------------
   const loadVolunteers = async () => {
-    const data = await api.get("/admin/volunteers");
-    setVolunteers(data);
+    const data = await apiRequest("/api/admin/pending-volunteers", {
+      method: "GET",
+    });
+
+    if (Array.isArray(data)) {
+      setVolunteers(data);
+    }
   };
 
   return (

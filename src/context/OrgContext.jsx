@@ -1,23 +1,47 @@
 import { createContext, useContext, useState } from "react";
-import api from "../utils/api";
+import { apiRequest } from "../utils/api";
 
 const OrgContext = createContext();
 
 export const OrgProvider = ({ children }) => {
   const [opportunities, setOpportunities] = useState([]);
 
+  // -----------------------------
+  // LOAD ALL OPPORTUNITIES
+  // -----------------------------
   const loadOpportunities = async () => {
-    const data = await api.get("/api/opportunities");
-    setOpportunities(data);
+    const data = await apiRequest("/api/opportunities", {
+      method: "GET",
+    });
+
+    if (Array.isArray(data)) {
+      setOpportunities(data);
+    }
   };
 
+  // -----------------------------
+  // CREATE OPPORTUNITY
+  // -----------------------------
   const createOpportunity = async (opportunity) => {
-    const newOpp = await api.post("/api/opportunities", opportunity);
-    setOpportunities((prev) => [...prev, newOpp]);
+    const newOpp = await apiRequest("/api/opportunities", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(opportunity),
+    });
+
+    if (newOpp && newOpp.id) {
+      setOpportunities((prev) => [...prev, newOpp]);
+    }
   };
 
+  // -----------------------------
+  // DELETE OPPORTUNITY
+  // -----------------------------
   const deleteOpportunity = async (id) => {
-    await api.delete(`/api/opportunities/${id}`);
+    await apiRequest(`/api/opportunities/${id}`, {
+      method: "DELETE",
+    });
+
     setOpportunities((prev) => prev.filter((o) => o.id !== id));
   };
 
