@@ -1,65 +1,62 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// Public pages
+// Layouts
+import AppLayout from "../layout/AppLayout";
+import DashboardLayout from "../components/layout/DashboardLayout";
+
+// Pages — Home
 import Home from "../pages/home/Home";
-import Login from "../pages/auth/Login";
-import Register from "../pages/auth/Register";
+
+// Org Auth
 import OrgLogin from "../pages/auth/OrgLogin";
 import OrgRegister from "../pages/auth/OrgRegister";
 
-// Organization
+// Org Dashboard
 import OrgDashboard from "../pages/organization/OrgDashboard";
-import EditOpportunity from "../pages/organization/EditOpportunity";
 
-// Admin
-import AdminDashboard from "../pages/admin/AdminDashboard";
-import VolunteerProfile from "../pages/admin/VolunteerProfile";
-
-// Protected wrapper
+// Protected Routes
 import ProtectedOrgRoute from "./ProtectedOrgRoute";
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* PUBLIC ROUTES */}
-        <Route path="/" element={<Home />} />
+        {/* =======================
+            PUBLIC ROUTES
+        ========================== */}
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/org-login" element={<OrgLogin />} />
+          <Route path="/org-register" element={<OrgRegister />} />
 
-        {/* Volunteer / User auth */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+          {/* Optional backwards-compatible paths */}
+          <Route path="/login" element={<OrgLogin />} />
+          <Route path="/register" element={<OrgRegister />} />
+        </Route>
 
-        {/* Organization auth */}
-        <Route path="/org-login" element={<OrgLogin />} />
-        <Route path="/org-register" element={<OrgRegister />} />
-
-        {/* ORG DASHBOARD — PROTECTED */}
+        {/* =======================
+            ORGANIZATION DASHBOARD
+        ========================== */}
         <Route
-          path="/org/dashboard"
           element={
             <ProtectedOrgRoute>
-              <OrgDashboard />
+              <DashboardLayout />
             </ProtectedOrgRoute>
           }
-        />
+        >
+          <Route path="/org/dashboard" element={<OrgDashboard />} />
+        </Route>
 
-        <Route
-          path="/org/opportunity/:id"
-          element={
-            <ProtectedOrgRoute>
-              <EditOpportunity />
-            </ProtectedOrgRoute>
-          }
-        />
-
-        {/* ADMIN DASHBOARD */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/volunteer/:id" element={<VolunteerProfile />} />
-
-        {/* 404 */}
+        {/* =======================
+            404 PAGE
+        ========================== */}
         <Route
           path="*"
-          element={<h1 className="text-center p-10">404 Not Found</h1>}
+          element={
+            <AppLayout>
+              <h1 className="text-center p-10">404 Not Found</h1>
+            </AppLayout>
+          }
         />
       </Routes>
     </BrowserRouter>
