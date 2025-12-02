@@ -2,10 +2,10 @@ import { apiRequest } from "../utils/api";
 
 // REGISTER ORGANIZATION
 export async function orgRegister(data) {
-  return apiRequest("/auth/register", {
+  return apiRequest("/auth/register-org", {
     method: "POST",
     body: JSON.stringify({
-      name: data.org_name, // backend expects: name
+      name: data.org_name,
       email: data.email,
       password: data.password,
     }),
