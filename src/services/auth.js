@@ -1,8 +1,8 @@
 import { apiRequest } from "../utils/api";
 
-// REGISTER ORGANIZATION
+// ORG REGISTER
 export async function orgRegister(data) {
-  return apiRequest("/auth/register-org", {
+  return apiRequest("/auth/org/register", {
     method: "POST",
     body: JSON.stringify({
       name: data.org_name,
@@ -12,9 +12,9 @@ export async function orgRegister(data) {
   });
 }
 
-// LOGIN (Organization)
+// ORG LOGIN
 export async function orgLogin(data) {
-  return apiRequest("/auth/login", {
+  return apiRequest("/auth/org/login", {
     method: "POST",
     body: JSON.stringify({
       email: data.email,
@@ -23,9 +23,9 @@ export async function orgLogin(data) {
   });
 }
 
-// GET LOGGED-IN USER
-export async function getProfile() {
-  return apiRequest("/auth/me", {
+// GET ORG PROFILE
+export async function getOrgProfile() {
+  return apiRequest("/auth/org/me", {
     method: "GET",
   });
 }
