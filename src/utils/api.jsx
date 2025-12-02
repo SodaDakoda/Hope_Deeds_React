@@ -4,7 +4,7 @@
 const API_BASE =
   window.location.hostname === "localhost"
     ? "http://localhost:5000/api"
-    : "https://hopedeeds-api.onrender.com";
+    : "https://hopedeeds-api.onrender.com/api";
 
 // Main helper for all API requests
 export async function apiRequest(path, options = {}) {
