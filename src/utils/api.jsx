@@ -1,33 +1,24 @@
-// src/utils/api.jsx
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-async function api(path, options = {}) {
-  const token = localStorage.getItem("token");
-
-  const headers = {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...options.headers,
-  };
-
+export async function apiRequest(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
     ...options,
-    headers,
   });
 
-  const data = await res.json().catch(() => ({}));
+  let data = null;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error("Invalid JSON response from server");
+  }
 
   if (!res.ok) {
-    throw new Error(data.error || "API request failed");
+    throw new Error(data.error || "Request failed");
   }
 
   return data;
 }
-
-export default {
-  get: (path) => api(path),
-  post: (path, body) =>
-    api(path, { method: "POST", body: JSON.stringify(body) }),
-  put: (path, body) => api(path, { method: "PUT", body: JSON.stringify(body) }),
-  del: (path) => api(path, { method: "DELETE" }),
-};

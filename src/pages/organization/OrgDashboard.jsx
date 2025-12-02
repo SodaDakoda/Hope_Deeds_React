@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getOrgProfile } from "../../services/auth";
+import { getOrgProfile } from "../../services/organizations";
 
 export default function OrgDashboard() {
   const navigate = useNavigate();
