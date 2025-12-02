@@ -1,16 +1,56 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { apiRequest } from "../utils/api";
 
 const OrgContext = createContext();
 
 export const OrgProvider = ({ children }) => {
+  const [org, setOrg] = useState(null);
+  const [token, setToken] = useState(null);
   const [opportunities, setOpportunities] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // -----------------------------
-  // LOAD ALL OPPORTUNITIES
+  // LOAD ORG SESSION FROM LOCALSTORAGE
+  // -----------------------------
+  useEffect(() => {
+    const storedOrg = localStorage.getItem("org");
+    const storedToken = localStorage.getItem("token");
+
+    if (storedOrg) setOrg(JSON.parse(storedOrg));
+    if (storedToken) setToken(storedToken);
+
+    setLoading(false);
+  }, []);
+
+  // -----------------------------
+  // LOGIN (ORG LOGIN PAGE WILL CALL THIS)
+  // -----------------------------
+  const orgLogin = (orgData, jwt) => {
+    localStorage.setItem("org", JSON.stringify(orgData));
+    localStorage.setItem("token", jwt);
+
+    setOrg(orgData);
+    setToken(jwt);
+  };
+
+  // -----------------------------
+  // LOGOUT
+  // -----------------------------
+  const orgLogout = () => {
+    localStorage.removeItem("org");
+    localStorage.removeItem("token");
+
+    setOrg(null);
+    setToken(null);
+  };
+
+  // -----------------------------
+  // LOAD OPPORTUNITIES
   // -----------------------------
   const loadOpportunities = async () => {
-    const data = await apiRequest("/api/opportunities", {
+    if (!token) return;
+
+    const data = await apiRequest("/opportunities", {
       method: "GET",
     });
 
@@ -23,13 +63,12 @@ export const OrgProvider = ({ children }) => {
   // CREATE OPPORTUNITY
   // -----------------------------
   const createOpportunity = async (opportunity) => {
-    const newOpp = await apiRequest("/api/opportunities", {
+    const newOpp = await apiRequest("/opportunities", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(opportunity),
     });
 
-    if (newOpp && newOpp.id) {
+    if (newOpp?.id) {
       setOpportunities((prev) => [...prev, newOpp]);
     }
   };
@@ -38,7 +77,7 @@ export const OrgProvider = ({ children }) => {
   // DELETE OPPORTUNITY
   // -----------------------------
   const deleteOpportunity = async (id) => {
-    await apiRequest(`/api/opportunities/${id}`, {
+    await apiRequest(`/opportunities/${id}`, {
       method: "DELETE",
     });
 
@@ -48,6 +87,11 @@ export const OrgProvider = ({ children }) => {
   return (
     <OrgContext.Provider
       value={{
+        org,
+        token,
+        loading,
+        orgLogin,
+        orgLogout,
         opportunities,
         loadOpportunities,
         createOpportunity,

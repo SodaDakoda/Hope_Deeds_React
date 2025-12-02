@@ -22,15 +22,20 @@ export default function OrgRegister() {
     e.preventDefault();
     setError("");
 
-    const result = await orgRegister(form);
+    try {
+      const result = await orgRegister(form);
 
-    if (result.error) {
-      setError(result.error);
-      return;
+      // Backend returns: { success: true } or { error }
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+
+      alert("Organization registered successfully! Please log in.");
+      navigate("/org-login");
+    } catch (err) {
+      setError(err.message);
     }
-
-    alert("Organization registered! Please log in.");
-    navigate("/login");
   }
 
   return (

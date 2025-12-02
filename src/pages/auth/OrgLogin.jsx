@@ -1,4 +1,3 @@
-// src/pages/auth/OrgLogin.jsx
 import { useState } from "react";
 import { orgLogin } from "../../services/auth";
 import { useNavigate } from "react-router-dom";
@@ -21,17 +20,25 @@ export default function OrgLogin() {
     e.preventDefault();
     setError("");
 
-    const result = await orgLogin(form);
+    try {
+      const result = await orgLogin(form);
 
-    if (!result.success) {
-      setError(result.error || "Login failed");
-      return;
+      // Backend returns { success, token, user }
+      if (!result.success || !result.token) {
+        setError(result.error || "Login failed");
+        return;
+      }
+
+      // Save JWT token
+      localStorage.setItem("token", result.token);
+
+      // Save admin user (organization owner)
+      localStorage.setItem("user", JSON.stringify(result.user));
+
+      navigate("/org/dashboard");
+    } catch (err) {
+      setError(err.message);
     }
-
-    // Save org info in localStorage for now
-    localStorage.setItem("org", JSON.stringify(result.org));
-
-    navigate("/org/dashboard");
   }
 
   return (

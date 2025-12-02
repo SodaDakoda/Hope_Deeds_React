@@ -1,6 +1,12 @@
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+// Auto-detect API base:
+// - If running on localhost → use local backend
+// - Otherwise → use Render backend
+const API_BASE =
+  window.location.hostname === "localhost"
+    ? "http://localhost:5000/api"
+    : "https://hopedeeds-api.onrender.com/api";
 
-// Helper function for all requests
+// Main helper for all API requests
 export async function apiRequest(path, options = {}) {
   const token = localStorage.getItem("token");
 
@@ -27,19 +33,22 @@ export async function apiRequest(path, options = {}) {
   return data;
 }
 
-// Convenience helpers
+// Shortcut helpers
 const api = {
   get: (path) => apiRequest(path, { method: "GET" }),
+
   post: (path, body) =>
     apiRequest(path, {
       method: "POST",
       body: JSON.stringify(body),
     }),
+
   put: (path, body) =>
     apiRequest(path, {
       method: "PUT",
       body: JSON.stringify(body),
     }),
+
   delete: (path) => apiRequest(path, { method: "DELETE" }),
 };
 

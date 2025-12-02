@@ -1,46 +1,43 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { getOrgProfile } from "../../services/organizations";
+import { useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 export default function OrgDashboard() {
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [org, setOrg] = useState(null);
-  const [loading, setLoading] = useState(true);
 
+  // Redirect if no user after loading
   useEffect(() => {
-    async function loadOrg() {
-      try {
-        const data = await getOrgProfile();
-        if (!data?.id) {
-          navigate("/login");
-          return;
-        }
-        setOrg(data);
-      } catch (err) {
-        console.error("Failed to load org:", err);
-      } finally {
-        setLoading(false);
-      }
+    if (!loading && !user) {
+      navigate("/org-login");
     }
-    loadOrg();
-  }, []);
+  }, [loading, user, navigate]);
 
   if (loading) {
-    return <div className="p-10 text-center text-xl">Loading...</div>;
+    return (
+      <div className="p-10 text-center text-xl">Loading your dashboard...</div>
+    );
+  }
+
+  if (!user) {
+    // Safety fallback — should never hit due to redirect
+    return (
+      <div className="p-10 text-center text-xl text-red-600">
+        Not authorized.
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto px-6 py-10">
-      {/* Title */}
       <h1 className="text-4xl font-bold text-[#075677]">
-        Welcome, {org.org_name}
+        Welcome, {user.name}
       </h1>
 
       <p className="text-gray-600 mt-2">
         Manage your opportunities, volunteers, and organization info.
       </p>
 
-      {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
         <Link
           to="/org/opportunities/create"
@@ -61,7 +58,7 @@ export default function OrgDashboard() {
           <h3 className="text-xl font-bold text-[#f8993a]">
             Manage Opportunities
           </h3>
-          <p className="text-gray-500 mt-2">Edit, update, and delete shifts.</p>
+          <p className="text-gray-500 mt-2">Edit & manage shifts.</p>
         </Link>
 
         <Link
@@ -71,7 +68,7 @@ export default function OrgDashboard() {
           <h3 className="text-xl font-bold text-[#62c7f2]">
             Organization Profile
           </h3>
-          <p className="text-gray-500 mt-2">View organization details.</p>
+          <p className="text-gray-500 mt-2">View org details.</p>
         </Link>
       </div>
     </div>

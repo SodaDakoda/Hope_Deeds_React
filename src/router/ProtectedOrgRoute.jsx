@@ -1,12 +1,23 @@
-import { useOrg } from "../context/OrgContext";
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function ProtectedOrgRoute({ children }) {
-  const { org, loading } = useOrg();
+  const { user, loading } = useAuth();
 
-  if (loading) return <div>Checking session...</div>;
+  // Still checking the token?
+  if (loading) {
+    return <div className="p-6 text-center text-xl">Checking session...</div>;
+  }
 
-  if (!org) return <Navigate to="/login" replace />;
+  // No user logged in → redirect to organization login
+  if (!user) {
+    return <Navigate to="/org-login" replace />;
+  }
+
+  // User is logged in but NOT an admin/org account → block access
+  if (user.role !== "admin") {
+    return <Navigate to="/login" replace />;
+  }
 
   return children;
 }
