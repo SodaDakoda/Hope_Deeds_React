@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { getProfile } from "../services/auth";
+import { getOrgProfile as getProfile } from "../services/auth";
 
 const AuthContext = createContext();
 
