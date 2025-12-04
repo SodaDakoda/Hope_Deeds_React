@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Layouts
 import AppLayout from "../layout/AppLayout";
-import DashboardLayout from "../components/layout/DashboardLayout";
+import DashboardLayout from "../layout/DashboardLayout.jsx";
 
 // Pages — Home
 import Home from "../pages/home/Home";
