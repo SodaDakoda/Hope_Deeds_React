@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import Topbar from "../navigation/Topbar";
-import Sidebar from "../navigation/Sidebar";
+import Topbar from "../components/navigation/Topbar.jsx";
+import Sidebar from "../components/navigation/Sidebar.jsx";
 
 export default function DashboardLayout() {
   return (
@@ -11,7 +11,7 @@ export default function DashboardLayout() {
         <Topbar />
 
         <main className="p-6">
-          <Outlet /> {/* OrgDashboard renders here */}
+          <Outlet />
         </main>
       </div>
     </div>
