@@ -25,7 +25,5 @@ export async function orgLogin(data) {
 
 // GET ORG PROFILE
 export async function getProfile() {
-- return apiRequest("/auth/me")
-+ return apiRequest("/auth/org/me")
+  return apiRequest("/auth/org/me");
 }
-
