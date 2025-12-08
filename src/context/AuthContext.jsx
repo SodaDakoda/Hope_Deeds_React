@@ -11,24 +11,19 @@ export function AuthProvider({ children }) {
     async function loadSession() {
       const token = localStorage.getItem("token");
 
-      // No token → no session
       if (!token) {
         setLoading(false);
         return;
       }
 
       try {
-        const data = await getProfile();
+        const data = await getOrgProfile();
 
-        // Backend returns:  { success: true, user: {...} }
-        if (data?.user) {
-          setUser(data.user);
-        } else {
-          localStorage.removeItem("token");
-        }
+        setUser(data);
       } catch (err) {
         console.error("Failed to load session:", err);
         localStorage.removeItem("token");
+        setUser(null);
       }
 
       setLoading(false);
