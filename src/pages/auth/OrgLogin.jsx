@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { orgLogin } from "../../services/auth";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 export default function OrgLogin() {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   const [form, setForm] = useState({
     email: "",
@@ -11,6 +13,7 @@ export default function OrgLogin() {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,25 +22,31 @@ export default function OrgLogin() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
       const result = await orgLogin(form);
 
-      // Backend returns { success, token, user }
-      if (!result.success || !result.token) {
-        setError(result.error || "Login failed");
+      // Expecting: { success, token, user }
+      if (!result?.success || !result?.token || !result?.user) {
+        setError(result?.error || "Login failed");
+        setLoading(false);
         return;
       }
 
-      // Save JWT token
+      // Save JWT for future requests
       localStorage.setItem("token", result.token);
 
-      // Save admin user (organization owner)
-      localStorage.setItem("user", JSON.stringify(result.user));
+      // ✅ IMPORTANT: update auth context
+      setUser(result.user);
 
-      navigate("/org/dashboard");
+      // Navigate AFTER auth state is set
+      navigate("/org/dashboard", { replace: true });
     } catch (err) {
-      setError(err.message);
+      console.error(err);
+      setError(err.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -48,7 +57,7 @@ export default function OrgLogin() {
           Organization Login
         </h1>
 
-        {error && <p className="text-red-600 text-center mt-3">{error}</p>}
+        {error && <p className="text-red-600 text-center mt-4">{error}</p>}
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <input
@@ -59,6 +68,7 @@ export default function OrgLogin() {
             value={form.email}
             onChange={handleChange}
             required
+            autoComplete="email"
           />
 
           <input
@@ -69,13 +79,15 @@ export default function OrgLogin() {
             value={form.password}
             onChange={handleChange}
             required
+            autoComplete="current-password"
           />
 
           <button
             type="submit"
-            className="w-full bg-[#075677] text-white py-2 rounded hover:bg-[#06485f]"
+            disabled={loading}
+            className="w-full bg-[#075677] text-white py-2 rounded hover:bg-[#06485f] disabled:opacity-60"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
       </div>
