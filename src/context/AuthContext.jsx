@@ -17,11 +17,16 @@ export function AuthProvider({ children }) {
       }
 
       try {
-        const data = await getOrgProfile();
+        const data = await getProfile();
 
-        setUser(data);
+        if (data?.id) {
+          setUser(data);
+        } else {
+          localStorage.removeItem("token");
+          setUser(null);
+        }
       } catch (err) {
-        console.error("Failed to load session:", err);
+        console.error("Session restore failed", err);
         localStorage.removeItem("token");
         setUser(null);
       }
@@ -32,8 +37,13 @@ export function AuthProvider({ children }) {
     loadSession();
   }, []);
 
+  function logout() {
+    localStorage.removeItem("token");
+    setUser(null);
+  }
+
   return (
-    <AuthContext.Provider value={{ user, setUser, loading }}>
+    <AuthContext.Provider value={{ user, setUser, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,32 +1,45 @@
-// src/components/layout/TopBar.jsx
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
-export default function TopBar() {
+export default function Topbar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate("/");
+  }
+
   return (
-    <header className="bg-white shadow">
-      <div className="container mx-auto flex justify-between items-center py-4 px-6">
-        <h1 className="text-3xl font-extrabold text-[#075677]">
-          Hope<span className="text-[#f8993a]">Deeds</span>
-        </h1>
+    <div className="flex justify-between items-center px-6 py-4 bg-white shadow">
+      <Link to="/" className="font-bold text-[#075677]">
+        Hope Deeds
+      </Link>
 
-        <nav>
-          <ul className="flex gap-6 items-center text-lg font-medium">
-            <li>
-              <Link to="/login" className="hover:text-[#075677]">
-                Login
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/register"
-                className="bg-[#075677] text-white px-4 py-2 rounded hover:bg-[#06485f] transition"
-              >
-                Get Started
-              </Link>
-            </li>
-          </ul>
-        </nav>
+      <div className="flex items-center gap-4">
+        {!user ? (
+          <>
+            <Link to="/org-login" className="text-[#075677]">
+              Login
+            </Link>
+            <Link
+              to="/org-register"
+              className="bg-[#075677] text-white px-4 py-2 rounded"
+            >
+              Get Started
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link to="/org/dashboard" className="text-[#075677]">
+              Dashboard
+            </Link>
+            <button onClick={handleLogout} className="text-red-600 font-medium">
+              Sign Out
+            </button>
+          </>
+        )}
       </div>
-    </header>
+    </div>
   );
 }

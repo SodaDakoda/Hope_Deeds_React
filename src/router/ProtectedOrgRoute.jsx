@@ -1,17 +1,19 @@
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function ProtectedOrgRoute({ children }) {
-  const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const { user, loading } = useAuth();
 
-  // No token → force login
-  if (!token) {
+  if (loading) {
+    return <div className="p-6 text-center">Loading session...</div>;
+  }
+
+  if (!user) {
     return <Navigate to="/org-login" replace />;
   }
 
-  // If a user exists but isn't an admin → block
-  if (!user || user.role !== "admin") {
-    return <Navigate to="/org-login" replace />;
+  if (user.role !== "admin") {
+    return <Navigate to="/" replace />;
   }
 
   return children;
