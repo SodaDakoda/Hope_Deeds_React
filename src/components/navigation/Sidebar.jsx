@@ -1,23 +1,49 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 export default function Sidebar() {
-  return (
-    <aside className="w-64 bg-white shadow-lg p-4">
-      <h2 className="text-xl font-bold text-blue-700 mb-6">
-        Hope<span className="text-orange-500">Deeds</span>
-      </h2>
+  const linkClasses = ({ isActive }) =>
+    `
+    flex items-center px-5 py-3 rounded-md transition
+    ${
+      isActive
+        ? "bg-white text-[#075677] font-semibold"
+        : "text-[#e6f3f8] hover:bg-[#0b6e94]"
+    }
+  `;
 
-      <nav className="flex flex-col gap-3">
-        <Link to="/org/dashboard" className="hover:text-blue-600">
+  return (
+    <aside className="w-64 min-h-screen bg-[#075677] flex flex-col">
+      {/* LOGO / TITLE */}
+      <div className="px-6 py-6 border-b border-white/20">
+        <h1 className="text-2xl font-bold text-white tracking-wide">
+          Hope Deeds
+        </h1>
+        <p className="text-sm text-[#cde9f3] mt-1">Organization Dashboard</p>
+      </div>
+
+      {/* NAV */}
+      <nav className="flex-1 px-3 py-6 space-y-2">
+        <NavLink to="/org/dashboard" className={linkClasses}>
           Dashboard
-        </Link>
-        <Link to="/org/dashboard#opportunities" className="hover:text-blue-600">
+        </NavLink>
+
+        <NavLink to="/org/opportunities" className={linkClasses}>
           Opportunities
-        </Link>
-        <a href="/org/logout" className="text-red-500">
-          Logout
-        </a>
+        </NavLink>
+
+        <NavLink to="/org/shifts" className={linkClasses}>
+          Shifts
+        </NavLink>
+
+        <NavLink to="/org/volunteers" className={linkClasses}>
+          Volunteers
+        </NavLink>
       </nav>
+
+      {/* FOOTER */}
+      <div className="px-6 py-4 border-t border-white/20 text-sm text-[#cde9f3]">
+        © {new Date().getFullYear()} Hope Deeds
+      </div>
     </aside>
   );
 }
